@@ -55,9 +55,11 @@ def login():
     Label(login_screen, text="").pack()
     Button(login_screen, text="Login", width=10, height=1, command= login_verify).pack()
 
-def login_verify():
+# def login_verify():
+#     pass
+#Pass this method 
+def loginVerify():
     pass
-
 
 def mainscreen():
     global main_screen
