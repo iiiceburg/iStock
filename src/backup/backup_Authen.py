@@ -79,72 +79,37 @@ class MainAuthen():
         reg_screen.resizable(0,0)  
         global reg_username , reg_password , reg_name , reg_email , reg_phone , reg_conpass
         global username_entry , pass_entry , name_entry , email_entry , phone_entry , conpass_entry
+
         reg_username = StringVar()
         reg_password = StringVar()
         reg_conpass = StringVar()
         reg_name = StringVar()
         reg_email = StringVar()
         reg_phone = StringVar()
-        
-        Label(reg_screen,text="CREATE ACCOUNT",fg="black",bg="white",font="vandara 18 bold").place(x = 330, y = 3)
-        Label(reg_screen,text="Username",fg="black",bg="white",font="vandara 10").place(x=325,y=45)
-        Label(reg_screen,text="Password",fg="black",bg="white",font="vandara 10").place(x=325,y=115)
-        Label(reg_screen,text="Confirm Password",fg="black",bg="white",font="vandara 10").place(x=325,y=185)
-        Label(reg_screen,text="Name",fg="black",bg="white",font="vandara 10").place(x=325,y=255)
-        Label(reg_screen,text="Email",fg="black",bg="white",font="vandara 10").place(x=325,y=325)
-        Label(reg_screen,text="Phone",fg="black",bg="white",font="vandara 10").place(x=325,y=395)
-        username_entry = Entry(reg_screen,width=20, textvariable = reg_username,bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
-        username_entry.grid(row=0,column=1,pady=(65,0),ipady=10,sticky=N)
-        pass_entry = Entry(reg_screen,width=20, textvariable = reg_password,bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
-        pass_entry.grid(row=0,column=1,pady=(135,0),ipady=10,sticky=N)
-        conpass_entry = Entry(reg_screen,width=20, textvariable = reg_conpass,bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
-        conpass_entry.grid(row=0,column=1,pady=(205,0),ipady=10,sticky=N)
-        name_entry = Entry(reg_screen,width=20, textvariable = reg_name,bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
-        name_entry.grid(row=0,column=1,pady=(275,0),ipady=10,sticky=N)
-        email_entry = Entry(reg_screen,width=20, textvariable = reg_email,bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
-        email_entry.grid(row=0,column=1,pady=(345,0),ipady=10,sticky=N)
-        phone_entry = Entry(reg_screen,width=20, textvariable = reg_phone,bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
-        phone_entry.grid(row=0,column=1,pady=(415,0),ipady=10,sticky=N)
-        Button(reg_screen,text="Register",fg="black",bg="orange",font = "vandara 12 bold",width=14,height=2,command=register_insert_data).grid(row=0,column=1,pady=(480,0))
+        lblreg_list = ["Username","Password","Confirm Password","Name","Email","Phone"]
+        reg_val_list = [reg_username , reg_password , reg_conpass , reg_name , reg_email , reg_phone ]
+        reg_data = []
+        for i,items in enumerate(lblreg_list):
+            Label(reg_screen,text=items,fg="black",bg="white",font="vandara 10").place(x=325,y=((i*70)+45))
+            reg_entry = Entry(reg_screen,width=20, textvariable =reg_val_list[i],bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
+            reg_entry.grid(row=0,column=1,pady=(((i*70)+65),0),ipady=10,sticky=N)
+            reg_data.append(reg_entry)
+        Button(reg_screen,text="Register",fg="black",bg="orange",font = "vandara 12 bold",width=14,height=2,command=lambda:register_insert_data(reg_data)).grid(row=0,column=1,pady=(480,0))
         Button(reg_screen,text="Already have an account? Login",fg="black",bg="white",font = "vandara 10 bold",relief=FLAT,height=2,command=lambda:combine_funcs_already_acc(reg_screen)).grid(row=1,column=1)
 
-        
-
     global register_insert_data
-    def register_insert_data():
-        
-        get_username = username_entry.get()
-        get_password = pass_entry.get()
-        get_conpass = conpass_entry.get()
-        get_name = name_entry.get()
-        get_email = email_entry.get()
-        get_phone = phone_entry.get()  
-    
-           
-        if pass_entry.get() == conpass_entry.get():
-            
-            conn = sqlite3.connect('src\db\istock.db')
-            curs = conn.cursor()
-            reg_insert_data = """INSERT INTO users(username,password,name,email,phone) 
-            VALUES(?,?,?,?,?);"""
-            curs.execute(reg_insert_data,(get_username,get_password,get_name,get_email,get_phone))
-            conn.commit()
-            curs.close()
-    
-            print(reg_insert_data)
+    def register_insert_data(data):
+        newData = []
+        for i,regData in enumerate(data):
+            if i == 0 and regData.get() == "":
+                messagebox.showwarning("Admin","Please input Username")
+                return
+            elif i == 1 and regData.get() == "":
+                print("Please input password")
+            newData.append(regData.get())
+        print(newData)
 
-            print("Username : ",get_username)
-            print("Password : %s"%get_password)
-            print("Confirm Password : %s"%get_conpass)
-            print("Name : ",name_entry.get())
-            print("Email : ",get_email)
-            print("Phone : ",get_phone)
-            messagebox.showinfo("Admin iStock:","Register Successfully")
-            
-            
-        else:
-            messagebox.showwarning("Admin iStock:","The confirm password not match")
-            
+           
 
 
     mainWindow = window()

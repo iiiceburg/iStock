@@ -4,7 +4,7 @@ import sqlite3 as lite
 # dbPath = "db/iStock.db"
 
 def connect_sqLite():
-    conn = lite.connect('db/iStock.db',isolation_level=None)
+    conn = lite.connect('db/iStock.db')
     return conn
 
 
