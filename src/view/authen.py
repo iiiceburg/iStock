@@ -1,11 +1,12 @@
+import os, sys
+import hashlib
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sqlite3 import Error
 import tkinter as tk
 from tkinter.constants import *
 from tkinter import messagebox
-import tkinter.ttk as ttk
-import os, sys
 import sqlite3 as lite
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from view.home import Home
 
 #Mainclass
 class MainAuthen(tk.Frame):
@@ -88,6 +89,8 @@ class MainAuthen(tk.Frame):
         self.to_login = tk.Button(reg_screen,text="Already have an account? Login",fg="black",bg="white",font = "vandara 10 bold",command=lambda:[self.reg_screen.destroy(),self.loginScreen(tk.Tk())],relief=FLAT,height=2)
         self.to_login.grid(row=1,column=1)
 
+    
+
 #This class will run when self.reg_btn1 has been clicked!
 #Insert data from user input register form into database
 class InsertData:
@@ -115,13 +118,15 @@ class InsertData:
         if data[1].get() != data[2].get():
             messagebox.showwarning("Admin:","Password and Confirm Passoword does not match!")
         else :
+            pwd = data[1].get()
+            encodePwd = hashlib.md5(pwd.encode()).hexdigest() #Encrypt password 
             try :
                 conn = lite.connect('db/iStock.db')
                 curs = conn.cursor()
                 print("Success")
                 query_reg_insert = """INSERT INTO users (username,password,name,email,phone)
                 VALUES(?,?,?,?,?)"""
-                curs.execute(query_reg_insert,[data[0].get(),data[1].get(),data[3].get(),data[4].get(),data[5].get()])
+                curs.execute(query_reg_insert,[data[0].get(),encodePwd,data[3].get(),data[4].get(),data[5].get()])
                 conn.commit()
                 conn.close()
             except Error :
@@ -134,13 +139,14 @@ class LoginCheck:
         conn = lite.connect('db/iStock.db')
         curs = conn.cursor()
         query_search_data =  "SELECT * FROM users where username = ? and password = ?"
-        curs.execute(query_search_data,[uname,pwd])
+        decodePwd = hashlib.md5(pwd.encode()).hexdigest() #Decrypt password 
+        curs.execute(query_search_data,[uname,decodePwd])
         loginData = curs.fetchone()
         conn.close()
         if not loginData:
             print("Fail")
         else :
-            print("Login Complete")
+            Home()
 
 if __name__ == '__main__':
     root = tk.Tk()

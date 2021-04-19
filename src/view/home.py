@@ -4,9 +4,11 @@ class Home:
     def __init__(self):
         self.window = tk.Tk()
         self.window.state("zoomed")
+        self.window.title("iStock ")
         self.window.mainloop()
     
     def menuBar(self):
+
         pass
 
     def header(self): #Search
