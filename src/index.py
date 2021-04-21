@@ -1,10 +1,10 @@
-with open('03.txt') as f:
-    lines = f.read()
-    # a = lines.split()
-    t = list(lines)
-    print(t[32768])
-    # result = ""
-    # for i in range(len(t)):
-    #     if i % 2000 == 0:
-    #         result += t[i]
-    # print(str(len(t))+"_"+result)
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import tkinter as tk
+from view.authen import *
+
+
+if __name__ == '__main__':
+    root = tk.Tk()
+    main_app =  MainAuthen(root)
+    root.mainloop()

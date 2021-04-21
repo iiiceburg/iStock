@@ -61,7 +61,7 @@ class MainAuthen(tk.Frame):
         self.loginlbl5.grid(row=0,column=1,pady=(50,0),ipady=10)
         self.loginlbl6 = tk.Entry(self.login,textvariable=self.login_password,show= '*',width=20,bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
         self.loginlbl6.grid(row=0,column=1,pady=(200,0),ipady=10)
-        self.login_btn = tk.Button(self.login,text="Login",fg="black",bg="orange",font = "vandara 12 bold",width=14,height=2,command=lambda:LoginCheck.searchData(self.login_username.get(),self.login_password.get()))
+        self.login_btn = tk.Button(self.login,text="Login",fg="black",bg="orange",font = "vandara 12 bold",width=14,height=2,command=lambda:LoginCheck.searchData(self.login_username.get(),self.login_password.get(),self.login))
         self.login_btn.grid(row=0,column=1,pady=(50,0),sticky=S)
         self.to_reg = tk.Button(self.login,text="Don't have an account yet? Register",fg="black",bg="white",command=lambda:[self.login.destroy(),self.registerScreen(tk.Tk())],font = "vandara 10 bold",relief=FLAT,height=2)
         self.to_reg.grid(row=1,column=1,sticky=N,pady=(10,0))
@@ -79,7 +79,7 @@ class MainAuthen(tk.Frame):
         self.reg_val_list = [self.reg_username , self.reg_password , self.reg_conpass , self.reg_name , self.reg_email , self.reg_phone ]
         reg_data = []
         for i,items in enumerate(self.lblreg_list):
-            self.a = tk.Label(reg_screen,text=items,fg="black",bg="white",font="vandara 10")
+            self.l = tk.Label(reg_screen,text=items,fg="black",bg="white",font="vandara 10")
             self.a.place(x=325,y=((i*70)+45))
             self.reg_entry = tk.Entry(reg_screen,width=20, textvariable =self.reg_val_list[i],bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
             self.reg_entry.grid(row=0,column=1,pady=(((i*70)+65),0),ipady=10,sticky=N)
@@ -88,8 +88,6 @@ class MainAuthen(tk.Frame):
         self.reg_btn1.grid(row=0,column=1,pady=(480,0))
         self.to_login = tk.Button(reg_screen,text="Already have an account? Login",fg="black",bg="white",font = "vandara 10 bold",command=lambda:[self.reg_screen.destroy(),self.loginScreen(tk.Tk())],relief=FLAT,height=2)
         self.to_login.grid(row=1,column=1)
-
-    
 
 #This class will run when self.reg_btn1 has been clicked!
 #Insert data from user input register form into database
@@ -135,20 +133,19 @@ class InsertData:
 #This class will run when self.login has been clicked 
 #When user login this class will check data in database 
 class LoginCheck:
-    def searchData(uname,pwd):
+    def searchData(uname,pwd,loginScreen):
         conn = lite.connect('db/iStock.db')
         curs = conn.cursor()
         query_search_data =  "SELECT * FROM users where username = ? and password = ?"
         decodePwd = hashlib.md5(pwd.encode()).hexdigest() #Decrypt password 
         curs.execute(query_search_data,[uname,decodePwd])
+        global loginData
         loginData = curs.fetchone()
         conn.close()
         if not loginData:
-            print("Fail")
+            messagebox.showwarning("Admin:","Login failed.\nInvalid username or password.")
         else :
-            Home()
+            messagebox.showinfo("Admin:","Login successful.")
+            loginScreen.destroy()
+            Home(loginData) #Pass userdata to main program
 
-if __name__ == '__main__':
-    root = tk.Tk()
-    main_app =  MainAuthen(root)
-    root.mainloop()
