@@ -79,8 +79,8 @@ class MainAuthen(tk.Frame):
         self.reg_val_list = [self.reg_username , self.reg_password , self.reg_conpass , self.reg_name , self.reg_email , self.reg_phone ]
         reg_data = []
         for i,items in enumerate(self.lblreg_list):
-            self.l = tk.Label(reg_screen,text=items,fg="black",bg="white",font="vandara 10")
-            self.a.place(x=325,y=((i*70)+45))
+            self.label_init = tk.Label(reg_screen,text=items,fg="black",bg="white",font="vandara 10")
+            self.label_init.place(x=325,y=((i*70)+45))
             self.reg_entry = tk.Entry(reg_screen,width=20, textvariable =self.reg_val_list[i],bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
             self.reg_entry.grid(row=0,column=1,pady=(((i*70)+65),0),ipady=10,sticky=N)
             reg_data.append(self.reg_entry)
