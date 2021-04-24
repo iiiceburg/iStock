@@ -33,9 +33,9 @@ class MainAuthen(tk.Frame):
         self.lbl1.grid(row=0,column=1,sticky=N,pady=(100,0))
         self.lbl2 = tk.Label(self.root,text="Stock management system",fg="black",bg="white",font="vandara 10")
         self.lbl2.grid(row=0,column=1,sticky=N,pady=(150,0))
-        self.btn1 = tk.Button(self.root,text="Login",fg="black",bg="orange",font = "vandara 16 bold",width=20,height=2,command=lambda:[self.root.destroy(),self.loginScreen(tk.Tk())])
+        self.btn1 = tk.Button(self.root,text="Login",fg="black",bg="orange",font = "vandara 16 bold",relief=FLAT,width=20,height=2,command=lambda:[self.root.destroy(),self.loginScreen(tk.Tk())])
         self.btn1.grid(row=0,column=1,pady=(50,0))
-        self.btn2 = tk.Button(self.root,text="Register",fg="orange",bg="#333333",font = "vandara 16 bold",width=20,height=2,command=lambda:[self.root.destroy(),self.registerScreen(tk.Tk())])
+        self.btn2 = tk.Button(self.root,text="Register",fg="orange",bg="#333333",font = "vandara 16 bold",relief=FLAT,width=20,height=2,command=lambda:[self.root.destroy(),self.registerScreen(tk.Tk())])
         self.btn2.grid(row=0,column=1,pady=(200,0))
 
     #Login form user login into Program which if user don't have account , user can click btn to register page
@@ -61,7 +61,7 @@ class MainAuthen(tk.Frame):
         self.loginlbl5.grid(row=0,column=1,pady=(50,0),ipady=10)
         self.loginlbl6 = tk.Entry(self.login,textvariable=self.login_password,show= '*',width=20,bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
         self.loginlbl6.grid(row=0,column=1,pady=(200,0),ipady=10)
-        self.login_btn = tk.Button(self.login,text="Login",fg="black",bg="orange",font = "vandara 12 bold",width=14,height=2,command=lambda:LoginCheck.searchData(self.login_username.get(),self.login_password.get(),self.login))
+        self.login_btn = tk.Button(self.login,text="Login",fg="black",bg="orange",font = "vandara 12 bold",relief=FLAT,width=14,height=2,command=lambda:LoginCheck.searchData(self.login_username.get(),self.login_password.get(),self.login))
         self.login_btn.grid(row=0,column=1,pady=(50,0),sticky=S)
         self.to_reg = tk.Button(self.login,text="Don't have an account yet? Register",fg="black",bg="white",command=lambda:[self.login.destroy(),self.registerScreen(tk.Tk())],font = "vandara 10 bold",relief=FLAT,height=2)
         self.to_reg.grid(row=1,column=1,sticky=N,pady=(10,0))
@@ -84,7 +84,7 @@ class MainAuthen(tk.Frame):
             self.reg_entry = tk.Entry(reg_screen,width=20, textvariable =self.reg_val_list[i],bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
             self.reg_entry.grid(row=0,column=1,pady=(((i*70)+65),0),ipady=10,sticky=N)
             reg_data.append(self.reg_entry)
-        self.reg_btn1 = tk.Button(reg_screen,text="Register",fg="black",bg="orange",font = "vandara 12 bold",width=14,height=2,command=lambda:InsertData.result(reg_data))
+        self.reg_btn1 = tk.Button(reg_screen,text="Register",fg="black",bg="orange",font = "vandara 12 bold",relief=FLAT,width=14,height=2,command=lambda:InsertData.result(reg_data))
         self.reg_btn1.grid(row=0,column=1,pady=(480,0))
         self.to_login = tk.Button(reg_screen,text="Already have an account? Login",fg="black",bg="white",font = "vandara 10 bold",command=lambda:[self.reg_screen.destroy(),self.loginScreen(tk.Tk())],relief=FLAT,height=2)
         self.to_login.grid(row=1,column=1)
@@ -127,6 +127,7 @@ class InsertData:
                 curs.execute(query_reg_insert,[data[0].get(),encodePwd,data[3].get(),data[4].get(),data[5].get()])
                 conn.commit()
                 conn.close()
+                messagebox.showinfo("Success","Register Successfully,Thank you!")
             except Error :
                 messagebox.showwarning("Admin:","Username already exists!\nPlease try again")
 
