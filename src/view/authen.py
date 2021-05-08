@@ -147,5 +147,5 @@ class LoginCheck:
         else :
             messagebox.showinfo("Admin:","Login successful.")
             loginScreen.destroy()
-            Home(loginData) #Pass userdata to main program
+            Home() #Pass userdata to main program
 
