@@ -76,7 +76,7 @@ class Home(object):
         searchbar = tk.Entry(searchFrm,foreground="#333333",font="kanit 16")
         searchbar.place(x=120,y=100)
 
-        tk.Button(searchFrm,text="Find result",font="kanit 14 bold",bg="orange",fg="black").place(x=370,y=92)
+        tk.Button(searchFrm,text="Find result",font="kanit 14 bold",bg="orange",fg="black",relief=FLAT).place(x=370,y=92)
         tk.Label(searchFrm,text="Search :",fg="#333333",font="kanit 14").place(x=27,y=100)
         
     global category_management
@@ -87,9 +87,9 @@ class Home(object):
         catgEntry = tk.Entry(catgFrm,foreground="#333333",font="kanit 16")
         catgEntry.place(x=170,y=50)
 
-        tk.Button(catgFrm,text="Add Category",font="kanit 12 bold",bg="lightblue",fg="black").place(x=10,y=120)
-        tk.Button(catgFrm,text="Update Category",font="kanit 12 bold",bg="lightblue",fg="black").place(x=170,y=120)
-        tk.Button(catgFrm,text="Delete Category",font="kanit 12 bold",bg="lightblue",fg="black").place(x=350,y=120)
+        tk.Button(catgFrm,text="Add Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT).place(x=10,y=120)
+        tk.Button(catgFrm,text="Update Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT).place(x=170,y=120)
+        tk.Button(catgFrm,text="Delete Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT).place(x=350,y=120)
     
     global product_management
     def product_management(self):
@@ -116,10 +116,10 @@ class Home(object):
         skuEntry = tk.Entry(productFrm,foreground="#333333",font="kanit 16",width=15,justify=CENTER)
         skuEntry.place(x=140,y=200)
 
-        tk.Button(productFrm,text="Add Product",font="kanit 14 bold",bg="lightgreen",fg="black").place(x=20,y=270)
-        tk.Button(productFrm,text="Update Product",font="kanit 14 bold",bg="lightgreen",fg="black").place(x=200,y=270)
-        tk.Button(productFrm,text="Delete Product",font="kanit 14 bold",bg="lightgreen",fg="black").place(x=400,y=270)
-        tk.Button(productFrm,text="Clear All",font="kanit 14 bold",bg="lightgreen",fg="black").place(x=600,y=270)
+        tk.Button(productFrm,text="Add Product",font="kanit 14 bold",bg="#333333",fg="orange",relief=FLAT).place(x=20,y=270)
+        tk.Button(productFrm,text="Update Product",font="kanit 14 bold",bg="#333333",fg="orange",relief=FLAT).place(x=200,y=270)
+        tk.Button(productFrm,text="Delete Product",font="kanit 14 bold",bg="#333333",fg="orange",relief=FLAT).place(x=400,y=270)
+        tk.Button(productFrm,text="Clear All",font="kanit 14 bold",bg="#333333",fg="orange",relief=FLAT).place(x=600,y=270)
 
 if __name__ == '__main__':
     app = Home() 
