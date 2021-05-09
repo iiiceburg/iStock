@@ -3,8 +3,5 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import tkinter as tk
 from view.authen import *
 
-
 if __name__ == '__main__':
-    root = tk.Tk()
-    main_app =  MainAuthen(root)
-    root.mainloop()
+    MainAuthen()

@@ -4,14 +4,14 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sqlite3 import Error
 import tkinter as tk
 from tkinter.constants import *
-from tkinter import messagebox
+from tkinter import PhotoImage, messagebox
 import sqlite3 as lite
 from view.home import Home
 
 #Mainclass
 class MainAuthen(tk.Frame):
-    def __init__(self, root):
-        self.root = root
+    def __init__(self):
+        self.root = tk.Tk()
         tk.Frame.__init__(self, self.root)
         self.reg_username = tk.StringVar()
         self.reg_password = tk.StringVar()
@@ -28,7 +28,7 @@ class MainAuthen(tk.Frame):
         self.root.configure(bg="white")
         self.root.rowconfigure((0,1),weight = 1)
         self.root.columnconfigure((0,2),weight = 1)
-        self.root.resizable(0,0)
+        self.root.resizable(0,0) 
         self.lbl1 = tk.Label(self.root,text="Welcome to iStock",fg="black",bg="white",font="vandara 22 bold")
         self.lbl1.grid(row=0,column=1,sticky=N,pady=(100,0))
         self.lbl2 = tk.Label(self.root,text="Stock management system",fg="black",bg="white",font="vandara 10")
@@ -37,6 +37,7 @@ class MainAuthen(tk.Frame):
         self.btn1.grid(row=0,column=1,pady=(50,0))
         self.btn2 = tk.Button(self.root,text="Register",fg="orange",bg="#333333",font = "vandara 16 bold",relief=FLAT,width=20,height=2,command=lambda:[self.root.destroy(),self.registerScreen(tk.Tk())])
         self.btn2.grid(row=0,column=1,pady=(200,0))
+        self.root.mainloop()
 
     #Login form user login into Program which if user don't have account , user can click btn to register page
     def loginScreen(self,login):
@@ -154,5 +155,5 @@ class LoginCheck:
         else :
             messagebox.showinfo("Admin:","Login successful.")
             loginScreen.destroy()
-            Home() #Pass userdata to main program
-
+            Home(loginData) #Pass userdata to main program
+        
