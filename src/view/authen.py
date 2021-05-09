@@ -135,6 +135,12 @@ class InsertData:
 #When user login this class will check data in database 
 class LoginCheck:
     def searchData(uname,pwd,loginScreen):
+        if not uname:
+            messagebox.showwarning("Admin:","Please enter username")
+            return
+        if not pwd:
+            messagebox.showwarning("Admin:","Please enter password")
+            return
         conn = lite.connect('db/iStock.db')
         curs = conn.cursor()
         query_search_data =  "SELECT * FROM users where username = ? and password = ?"

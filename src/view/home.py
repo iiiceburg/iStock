@@ -100,8 +100,8 @@ class Home(object):
         skuEntry.place(x=140,y=50)
 
         tk.Label(productFrm,text="Product Name :",fg="#333333",font="kanit 14").place(x=350,y=50)
-        skuEntry = tk.Entry(productFrm,foreground="#333333",font="kanit 16",justify=CENTER)
-        skuEntry.place(x=490,y=50)
+        nameEntry = tk.Entry(productFrm,foreground="#333333",font="kanit 16",justify=CENTER)
+        nameEntry.place(x=490,y=50)
 
         tk.Label(productFrm,text="Category:",fg="#333333",font="kanit 14").place(x=10,y=130)
         category = ttk.Combobox(productFrm,width=15,height=5,font="vandara 14",state="readonly",justify=CENTER)
@@ -109,12 +109,12 @@ class Home(object):
         category.place(x=140,y=130)
 
         tk.Label(productFrm,text="Quantity :",fg="#333333",font="kanit 14").place(x=350,y=130)
-        skuEntry = tk.Entry(productFrm,foreground="#333333",font="kanit 16",width=7,justify=CENTER)
-        skuEntry.place(x=490,y=130)
+        qtyEntry = tk.Entry(productFrm,foreground="#333333",font="kanit 16",width=7,justify=CENTER)
+        qtyEntry.place(x=490,y=130)
 
         tk.Label(productFrm,text="Price :",fg="#333333",font="kanit 14").place(x=10,y=200)
-        skuEntry = tk.Entry(productFrm,foreground="#333333",font="kanit 16",width=15,justify=CENTER)
-        skuEntry.place(x=140,y=200)
+        prcEntry = tk.Entry(productFrm,foreground="#333333",font="kanit 16",width=15,justify=CENTER)
+        prcEntry.place(x=140,y=200)
 
         tk.Button(productFrm,text="Add Product",font="kanit 14 bold",bg="#333333",fg="orange",relief=FLAT).place(x=20,y=270)
         tk.Button(productFrm,text="Update Product",font="kanit 14 bold",bg="#333333",fg="orange",relief=FLAT).place(x=200,y=270)
