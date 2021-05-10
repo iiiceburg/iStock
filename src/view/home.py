@@ -134,7 +134,6 @@ class Home:
         tk.Label(searchFrm,text="Search :",fg="#333333",font="kanit 14").place(x=27,y=100)
 
         def find_result(ctg,fillterBy,search):
-            print(ctg,fillterBy,search)
             conn = connect_sqLite()
             curs = conn.cursor()
             if not ctg:
@@ -336,16 +335,16 @@ class Home:
             curs = conn.cursor()
             curs.execute("INSERT INTO products(user_id,sku,product_name,category,quantity,price) VALUES(?,?,?,?,?,?)",[u_id,sku,name,catg,qty,prc])
             conn.commit()
-            conn.close()
-            msg = "ผู้ใช้ : %s\nคำสั่ง : เพิ่มสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา    :%s"%(userData[1],name,sku,catg,qty,prc)
-            LineNotify.notify(msg)                       
+            conn.close() 
+            messagebox.showinfo("iStock","Product added successfully")                
             skuEntry.delete(0,END)
             nameEntry.delete(0,END)
             category.set("")
             qtyEntry.delete(0,END)
             prcEntry.delete(0,END)
-            messagebox.showinfo("iStock","Product added successfully")
             retrieve_data()
+            msg = "ผู้ใช้ : %s\nคำสั่ง : เพิ่มสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา    :%s"%(userData[1],name,sku,catg,qty,prc)
+            LineNotify.notify(msg)     
 
         def updateProduct(sku,name,catg,qty,prc):
             values = self.treeview.item(self.treeview.focus(),'values')
@@ -353,11 +352,16 @@ class Home:
             curs = conn.cursor()
             curs.execute("UPDATE products SET sku=?,product_name=?,category=?,quantity=?,price=? WHERE product_id = ?",[sku,name,catg,qty,prc,values[1]])
             conn.commit()
-            conn.close()
-            msg = "ผู้ใช้ : %s\nคำสั่ง : อัพเดทสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา    :%s"%(userData[1],name,sku,catg,qty,prc)
-            LineNotify.notify(msg)      
+            conn.close()  
             messagebox.showinfo("Admin:","Update stock successfully!")
+            skuEntry.delete(0,END)
+            nameEntry.delete(0,END)
+            category.set("")
+            qtyEntry.delete(0,END)
+            prcEntry.delete(0,END)
             retrieve_data()
+            msg = "ผู้ใช้ : %s\nคำสั่ง : อัพเดทสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา    :%s"%(userData[1],name,sku,catg,qty,prc)
+            LineNotify.notify(msg)   
 
         # global delProduct
         def delProduct():
@@ -383,7 +387,9 @@ class Home:
                 qtyEntry.delete(0,END)
                 prcEntry.delete(0,END)
                 retrieve_data()
-        
+                msg = "ผู้ใช้ : %s\nคำสั่ง : อัพเดทสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา :%s"%(userData[1],values[3],values[4],values[5],values[6])
+                LineNotify.notify(msg)  
+
         def clearAll():
             skuEntry.delete(0,END)
             nameEntry.delete(0,END)
