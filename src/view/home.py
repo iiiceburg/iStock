@@ -387,7 +387,7 @@ class Home:
                 qtyEntry.delete(0,END)
                 prcEntry.delete(0,END)
                 retrieve_data()
-                msg = "ผู้ใช้ : %s\nคำสั่ง : อัพเดทสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา :%s"%(userData[1],values[3],values[4],values[5],values[6])
+                msg = "ผู้ใช้ : %s\nคำสั่ง : อัพเดทสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา :%s"%(userData[1],values[3],values[2],values[4],values[5],values[6])
                 LineNotify.notify(msg)  
 
         def clearAll():
