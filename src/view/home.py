@@ -1,13 +1,13 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import Menu, StringVar, messagebox
 from tkinter.constants import *
 from tkinter import Frame, PhotoImage, Place, READABLE, ttk
 import os, sys
-from tkinter import font
-from tkinter.constants import ACTIVE, BOTH, DISABLED, LEFT, TRUE, X, Y
-from tkinter.messagebox import showwarning
-from db.dbConnect import *
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from tkinter.constants import ACTIVE, BOTH, DISABLED, LEFT, TRUE, X, Y
+from db.dbConnect import *
+from view.authen import *
+from controller.lineNotify import *
 
 class Home:
     global currentUser
@@ -19,20 +19,28 @@ class Home:
         self.window.iconphoto(False,icon)
         # self.window.state("zoomed")
         self.window.title("Welcome to istock : %s"%currentUser[1])
-        self.window.geometry("1280x1000+300+0")
+        self.window.geometry("1280x800+300+0")
         self.window.resizable(0,0)
         self.window.option_add("*Font", "Vandara 10")
-        self.window.rowconfigure((0,1,2),weight=1)
-        self.window.columnconfigure((0,1,2),weight=1)
+        self.window.rowconfigure((0,1),weight=1)
+        self.window.columnconfigure((0,1),weight=1)
+        menuBar = Menu(self.window)
+        menu = Menu(menuBar,tearoff=0)
+        menu.add_command(label="Connect line notify")
+        menu.add_command(label="Export to CSV")
+        # menu.add_separator()
+        menuBar.add_cascade(label="File",menu=menu)
+        menuBar.add_cascade(label="Exit",command=lambda:[self.window.destroy()])
+        self.window.config(menu=menuBar)
 
         self.searchFrm = tk.LabelFrame(self.window, text="Product Search",fg="#333333",font="Kanit 16")
-        self.searchFrm.place(x=0,y=625,width=500,height=180)
+        self.searchFrm.place(x=0,y=425,width=500,height=180)
 
         self.CategoryFrm = tk.LabelFrame(self.window, text="Category Management",fg="#333333",font="Kanit 16")
-        self.CategoryFrm.place(x=0,y=805,width=500,height=195)
+        self.CategoryFrm.place(x=0,y=585,width=500,height=195)
 
         self.productFrm = tk.LabelFrame(self.window, text="Products Management",fg="#333333",font="Kanit 16")
-        self.productFrm.place(x=500,y=625,width=780,height=375)
+        self.productFrm.place(x=500,y=425,width=780,height=355)
 
         treeview(self)
         search_filter(self)
@@ -44,9 +52,14 @@ class Home:
     def treeview(self):
         self.treeviewFrm = Frame(self.window)
         self.treeviewFrm.place(x=0,y=0)
+
+        self.scrollbar = tk.Scrollbar(self.treeviewFrm)
+        self.scrollbar.pack(side=RIGHT,fill=Y)
         
-        self.treeview = ttk.Treeview(self.treeviewFrm,columns=("no","id","sku","product_name","category","quantity","price"),height=30)
+        self.treeview = ttk.Treeview(self.treeviewFrm,columns=("no","id","sku","product_name","category","quantity","price"),yscrollcommand=self.scrollbar.set,height=20)
         self.treeview.pack(fill="x")
+
+        self.scrollbar.config(command=self.treeview.yview)
 
         self.treeview.heading("#0")
         self.treeview.heading("no",text="No")
@@ -64,7 +77,7 @@ class Home:
         self.treeview.column("product_name",width=490,minwidth=490)
         self.treeview.column("category",width=250,minwidth=250,anchor=CENTER)
         self.treeview.column("quantity",width=100,minwidth=100,anchor=CENTER)
-        self.treeview.column("price",width=200,minwidth=200,anchor=CENTER)
+        self.treeview.column("price",width=170,minwidth=170,anchor=CENTER)
 
         global retrieve_data
         def retrieve_data():
@@ -79,46 +92,190 @@ class Home:
             for i,product in enumerate(products):
                 productTreeview = self.treeview
                 productTreeview.insert("","end",values=(i+1,product[1],product[2],product[3],product[4],product[5],product[6]))
-
         retrieve_data()
+
+    #Query category by user_id
+    global query_ctg
+    def query_ctg():
+        ctg_list = []
+        conn = connect_sqLite()
+        curs = conn.cursor()
+        curs.execute("SELECT * FROM products_category WHERE user_id = ?",[userData[0]])
+        ctgs = curs.fetchall()
+        conn.close()
+        for ctg in ctgs:
+            ctg_list.append("%s %s"%(ctg[1],ctg[2]))
+        return ctg_list
 
     global search_filter
     def search_filter(self):
+        global ctg_search
         searchFrm = self.searchFrm
         tk.Label(searchFrm,text="Category :",fg="#333333",font="kanit 14").place(x=10,y=10)
         tk.Label(searchFrm,text="Filter by :",fg="#333333",font="kanit 14").place(x=21,y=50)
         tk.Label(searchFrm,text="Search :",fg="#333333",font="kanit 14").place(x=27,y=100)
 
-        category = ttk.Combobox(searchFrm,width=20,height=5,font="vandara 14",state="readonly",justify=CENTER)
-        category['values'] = ("category1","category2","category3","category4")
-        category.place(x=120,y=15)
+        ctg_search = ttk.Combobox(searchFrm,width=20,height=5,font="vandara 14",state="readonly",justify=CENTER)
+        ctg_search['values'] = query_ctg()
+        ctg_search.place(x=120,y=15)
 
-        searchmenu1 = tk.Radiobutton(searchFrm,text="Product Name",value=0)
+        radioBtn_val = StringVar()
+        radioBtn_val.set("0")
+        searchmenu1 = tk.Radiobutton(searchFrm,text="Product Name",value="0",variable=radioBtn_val)
         searchmenu1.place(x=120,y=55)
 
-        searchmenu2 = tk.Radiobutton(searchFrm,text="Product SKU",value=1)
+        searchmenu2 = tk.Radiobutton(searchFrm,text="Product SKU",value="1",variable=radioBtn_val)
         searchmenu2.place(x=250,y=55)
 
         searchbar = tk.Entry(searchFrm,foreground="#333333",font="kanit 16")
         searchbar.place(x=120,y=100)
 
-        tk.Button(searchFrm,text="Find result",font="kanit 14 bold",bg="orange",fg="black",relief=FLAT).place(x=370,y=92)
+        tk.Button(searchFrm,text="Find result",font="kanit 14 bold",bg="orange",fg="black",relief=FLAT,command=lambda:find_result(ctg_search.get(),radioBtn_val.get(),searchbar.get())).place(x=370,y=92)
         tk.Label(searchFrm,text="Search :",fg="#333333",font="kanit 14").place(x=27,y=100)
-        
+
+        def find_result(ctg,fillterBy,search):
+            print(ctg,fillterBy,search)
+            conn = connect_sqLite()
+            curs = conn.cursor()
+            if not ctg:
+                if fillterBy == "0":
+                    curs.execute("SELECT * from products WHERE user_id = ? AND product_name LIKE ?",[userData[0],search+"%"])
+                    products = curs.fetchall()
+                    conn.close()
+                    if not products:
+                        messagebox.showwarning("iStock:","Item not found\nPlease try again.")
+                        return
+                    self.treeview.delete(*self.treeview.get_children())
+                    for i,product in enumerate(products):
+                        productTreeview = self.treeview
+                        productTreeview.insert("","end",values=(i+1,product[1],product[2],product[3],product[4],product[5],product[6]))
+                else :
+                    curs.execute("SELECT * from products WHERE user_id = ? AND sku LIKE ?",[userData[0],search+"%"])
+                    products = curs.fetchall()
+                    conn.close()
+                    if not products:
+                        messagebox.showwarning("iStock:","Item not found\nPlease try again.")
+                        return
+                    self.treeview.delete(*self.treeview.get_children())
+                    for i,product in enumerate(products):
+                        productTreeview = self.treeview
+                        productTreeview.insert("","end",values=(i+1,product[1],product[2],product[3],product[4],product[5],product[6]))
+            else:
+                if not search:
+                    curs.execute("SELECT * FROM products WHERE user_id = ? and category = ?",[userData[0],ctg])
+                    products = curs.fetchall()
+                    conn.close()
+                    if not products:
+                        messagebox.showwarning("iStock:","Item not found\nPlease try again.")
+                        return
+                    self.treeview.delete(*self.treeview.get_children())
+                    for i,product in enumerate(products):
+                        productTreeview = self.treeview
+                        productTreeview.insert("","end",values=(i+1,product[1],product[2],product[3],product[4],product[5],product[6]))                
+                else:
+                    if fillterBy == "0":
+                        curs.execute("SELECT * from products WHERE user_id = ? AND category = ? AND product_name LIKE ?",[userData[0],ctg,search+"%"])
+                        products = curs.fetchall()
+                        conn.close()
+                        if not products:
+                            messagebox.showwarning("iStock:","Item not found\nPlease try again.")
+                            return
+                        self.treeview.delete(*self.treeview.get_children())
+                        for i,product in enumerate(products):
+                            productTreeview = self.treeview
+                            productTreeview.insert("","end",values=(i+1,product[1],product[2],product[3],product[4],product[5],product[6]))
+                    else :
+                        curs.execute("SELECT * from products WHERE user_id = ? AND category = ? AND sku LIKE ?",[userData[0],ctg,search+"%"])
+                        products = curs.fetchall()
+                        conn.close()
+                        if not products:
+                            messagebox.showwarning("iStock:","Item not found\nPlease try again.")
+                            return
+                        self.treeview.delete(*self.treeview.get_children())
+                        for i,product in enumerate(products):
+                            productTreeview = self.treeview
+                            productTreeview.insert("","end",values=(i+1,product[1],product[2],product[3],product[4],product[5],product[6]))
+            searchbar.delete(0,END)
+            ctg_search.set("") 
+ 
+    global current_ctg
+    def current_ctg(event):
+        global get_nameCtg
+        current = catgDropdown.current()
+        catgEntry.delete(0,END)
+        currentCtg = query_ctg()[current]
+        get_nameCtg = currentCtg.split()
+        catgEntry.insert(0,get_nameCtg[1])       
+
     global category_management
     def category_management(self):
+        global catgDropdown,catgEntry
         catgFrm = self.CategoryFrm
-        tk.Label(catgFrm,text="Category Name :",fg="#333333",font="kanit 14").place(x=10,y=50)
-        
-        catgEntry = tk.Entry(catgFrm,foreground="#333333",font="kanit 16")
-        catgEntry.place(x=170,y=50)
+        tk.Label(catgFrm,text="Category :",fg="#333333",font="kanit 14").place(x=10,y=20)
+        catgDropdown = ttk.Combobox(catgFrm,width=20,height=5,font="vandara 14",state="readonly",justify=CENTER)
+        catgDropdown['values'] = query_ctg()
+        catgDropdown.place(x=200,y=20)
 
-        tk.Button(catgFrm,text="Add Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT).place(x=10,y=120)
-        tk.Button(catgFrm,text="Update Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT).place(x=170,y=120)
-        tk.Button(catgFrm,text="Delete Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT).place(x=350,y=120)
-           
+        tk.Label(catgFrm,text="Category Name :",fg="#333333",font="kanit 14").place(x=10,y=70)   
+        catgEntry = tk.Entry(catgFrm,foreground="#333333",font="kanit 16")
+        catgEntry.place(x=200,y=70)
+
+        tk.Button(catgFrm,text="Add Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT,command=lambda:add_ctg(catgEntry.get())).place(x=10,y=120)
+        tk.Button(catgFrm,text="Update Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT,command=lambda:update_ctg(catgEntry.get())).place(x=170,y=120)
+        tk.Button(catgFrm,text="Delete Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT,command=lambda:delete_ctg(catgEntry.get())).place(x=350,y=120)
+        catgDropdown.bind("<<ComboboxSelected>>",current_ctg)
+
+        def add_ctg(name):
+            if not name:
+                messagebox.showwarning("Admin:","Please enter category name")
+                return
+            conn = connect_sqLite()
+            curs = conn.cursor()
+            curs.execute("INSERT INTO products_category(user_id,category) VALUES(?,?)",[userData[0],name])
+            conn.commit()
+            conn.close()
+            messagebox.showinfo("iStock","Category added successfully")
+            catgEntry.delete(0,END)   
+            catgDropdown.set("")
+            catgDropdown['values'] = query_ctg()
+            category['values'] = query_ctg()
+            ctg_search['values'] = query_ctg()
+
+        def update_ctg(name):
+            if not name:
+                messagebox.showwarning("Admin:","Please enter category name")
+                return
+            conn = connect_sqLite()
+            curs = conn.cursor()
+            curs.execute("UPDATE products_category SET category = ? WHERE category_id = ?",[name,get_nameCtg[0]])
+            conn.commit()
+            conn.close()
+            messagebox.showinfo("iStock","Category updated successfully") 
+            catgEntry.delete(0,END)   
+            catgDropdown.set("")
+            catgDropdown['values'] = query_ctg()
+            category['values'] = query_ctg()
+            ctg_search['values'] = query_ctg()
+
+        def delete_ctg(name):
+            if not name:
+                messagebox.showwarning("Admin:","Please enter category name")
+                return
+            conn = connect_sqLite()
+            curs = conn.cursor()
+            curs.execute("DELETE FROM products_category WHERE category_id = ?",[get_nameCtg[0]])
+            conn.commit()
+            conn.close()        
+            messagebox.showinfo("iStock","Category deleted successfully") 
+            catgEntry.delete(0,END)   
+            catgDropdown.set("")
+            catgDropdown['values'] = query_ctg()
+            category['values'] = query_ctg()
+            ctg_search['values'] = query_ctg()
+              
     global product_management
     def product_management(self):
+        global category
         productFrm = self.productFrm
 
         tk.Label(productFrm,text="Product SKU :",fg="#333333",font="kanit 14").place(x=10,y=50)
@@ -131,7 +288,7 @@ class Home:
 
         tk.Label(productFrm,text="Category:",fg="#333333",font="kanit 14").place(x=10,y=130)
         category = ttk.Combobox(productFrm,width=15,height=5,font="vandara 14",state="readonly",justify=CENTER)
-        category['values'] = ("category1","category2","category3","category4")
+        category['values'] = query_ctg()
         category.place(x=140,y=130)
 
         tk.Label(productFrm,text="Quantity :",fg="#333333",font="kanit 14").place(x=350,y=130)
@@ -180,6 +337,8 @@ class Home:
             curs.execute("INSERT INTO products(user_id,sku,product_name,category,quantity,price) VALUES(?,?,?,?,?,?)",[u_id,sku,name,catg,qty,prc])
             conn.commit()
             conn.close()
+            msg = "ผู้ใช้ : %s\nคำสั่ง : เพิ่มสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา    :%s"%(userData[1],name,sku,catg,qty,prc)
+            LineNotify.notify(msg)                       
             skuEntry.delete(0,END)
             nameEntry.delete(0,END)
             category.set("")
@@ -195,6 +354,8 @@ class Home:
             curs.execute("UPDATE products SET sku=?,product_name=?,category=?,quantity=?,price=? WHERE product_id = ?",[sku,name,catg,qty,prc,values[1]])
             conn.commit()
             conn.close()
+            msg = "ผู้ใช้ : %s\nคำสั่ง : อัพเดทสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา    :%s"%(userData[1],name,sku,catg,qty,prc)
+            LineNotify.notify(msg)      
             messagebox.showinfo("Admin:","Update stock successfully!")
             retrieve_data()
 
@@ -229,7 +390,6 @@ class Home:
             category.set("")
             qtyEntry.delete(0,END)
             prcEntry.delete(0,END)
-                
 
         self.treeview.bind("<Double-1>",treeViewClick)
 
