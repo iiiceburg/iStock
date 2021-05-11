@@ -54,7 +54,6 @@ class GetUserToken:
                 messagebox.showwarning(parent=popup,title="iStock",message="Connection failed , Access token is invalid\nPlease try again.")
                 return
                 
-                
     #Get current user token
     def notify(msg):
         conn = connect_sqLite()
