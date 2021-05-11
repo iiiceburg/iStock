@@ -1,13 +1,76 @@
-import tkinter as tk
-from tkinter import Menu, StringVar, messagebox
-from tkinter.constants import *
-from tkinter import Frame, PhotoImage, Place, READABLE, ttk
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from tkinter.constants import ACTIVE, BOTH, DISABLED, LEFT, TRUE, X, Y
+from tkinter import *
+from tkinter import ttk
+from sqlite3 import Error
 from db.dbConnect import *
 from view.authen import *
-from controller.lineNotify import *
+from notify.lineNotify import *
+import webbrowser
+
+class GetUserToken:
+    def lineToken():
+        global lblStatus,popup
+        popup = tk.Toplevel()
+        popup.title("Connect Line notify")
+        popup.geometry("450x250+700+200")
+        popup.resizable(0,0)
+        popup.rowconfigure((0,1),weight=1)
+        popup.columnconfigure((0),weight=1)
+        popup.configure(bg="white")
+       # popup.wm_title("Line notify")
+        lblEnterToken = tk.Label(popup,text="Enter Line access token",font="Kanit 16 bold",fg="#333333",bg="white")
+        lblEnterToken.grid(row=0,columnspan=3,sticky=N,pady=(25,0))
+
+        lblStatus = tk.Label(popup,font="Kanit 12",fg="#333333",bg="white")
+        lblStatus.grid(row=1,columnspan=3)
+
+        tokenEntry = tk.Text(popup,font="Lato 12",fg="#333333",height = 2, width = 40,bg="lightgrey",relief=FLAT)
+        tokenEntry.grid(row=0,columnspan=3,sticky=S)
+
+        tk.Button(popup,text="Connect",fg="white",font="Kanit 14",bg="#07BF3F",relief=FLAT,command=lambda:checkStatus(tokenEntry.get(1.0, "end-1c"))).grid(row=1,columnspan=3,sticky=N,pady=(15,0))
+        tk.Button(popup,text="How to connect line notify?",fg="#333333",font="Kanit 12 bold",bg="white",relief=FLAT,command=ContactUs.callurl).grid(row=1,columnspan=3,pady=(40,0))
+
+       # tk.Button(popup, text="Connect",fg="white",font="Kanit 14",bg="#07BF3F",relief=FLAT,command=lambda:notify(tokenEntry.get(1.0, "end-1c"))).grid(row=1,columnspan=3,sticky=N,pady=(15,0))
+
+    global checkStatus   
+    def checkStatus(token):
+        status = LineNotify.notify("Test connection",token)
+        if not token:
+            messagebox.showwarning(parent=popup,title="iStock",message="Please Enter access token")
+            return
+        else :
+            if status == 200:
+                try:
+                    conn = connect_sqLite()
+                    curs = conn.cursor()
+                    curs.execute("INSERT INTO lineTokens(user_id,tokens) VALUES(?,?)",[userData[0],token])
+                    conn.commit()
+                    conn.close()
+                    messagebox.showinfo(parent=popup,title="iStock",message="Connection has been successful")
+                except Error:
+                    messagebox.showwarning(parent=popup,title="iStock",message="You already connected to Line notify")
+            else :
+                messagebox.showwarning(parent=popup,title="iStock",message="Connection failed , Access token is invalid\nPlease try again.")
+                return
+                
+                
+    #Get current user token
+    def notify(msg):
+        conn = connect_sqLite()
+        curs = conn.cursor()
+        curs.execute("SELECT * FROM lineTokens WHERE user_id = ?",[userData[0]])
+        user_token = curs.fetchone() # => user_token[1] get user token
+        conn.close()
+        if not user_token:
+            pass
+        else:
+            LineNotify.notify(msg,user_token[1])
+        # print(user_token[1])
+
+class ContactUs:
+    def callurl():
+        webbrowser.open("https://lin.ee/AgxEZ6p")
 
 class Home:
     global currentUser
@@ -15,21 +78,17 @@ class Home:
         global userData
         userData = currentUser
         self.window = tk.Tk()
-        icon = PhotoImage(file="./assets/logo.png")
-        self.window.iconphoto(False,icon)
-        # self.window.state("zoomed")
         self.window.title("Welcome to istock : %s"%currentUser[1])
         self.window.geometry("1280x800+300+0")
         self.window.resizable(0,0)
         self.window.option_add("*Font", "Vandara 10")
         self.window.rowconfigure((0,1),weight=1)
         self.window.columnconfigure((0,1),weight=1)
+        self.window.iconphoto(False, tk.PhotoImage(file="./assets/logo.png"))
         menuBar = Menu(self.window)
-        menu = Menu(menuBar,tearoff=0)
-        menu.add_command(label="Connect line notify")
-        menu.add_command(label="Export to CSV")
-        # menu.add_separator()
-        menuBar.add_cascade(label="File",menu=menu)
+                # menu.add_separator()
+        menuBar.add_cascade(label="Line notify",command=GetUserToken.lineToken)
+        menuBar.add_cascade(label="Contact Us",command=ContactUs.callurl)
         menuBar.add_cascade(label="Exit",command=lambda:[self.window.destroy()])
         self.window.config(menu=menuBar)
 
@@ -92,6 +151,7 @@ class Home:
             for i,product in enumerate(products):
                 productTreeview = self.treeview
                 productTreeview.insert("","end",values=(i+1,product[1],product[2],product[3],product[4],product[5],product[6]))
+
         retrieve_data()
 
     #Query category by user_id
@@ -343,8 +403,8 @@ class Home:
             qtyEntry.delete(0,END)
             prcEntry.delete(0,END)
             retrieve_data()
-            msg = "ผู้ใช้ : %s\nคำสั่ง : เพิ่มสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา    :%s"%(userData[1],name,sku,catg,qty,prc)
-            LineNotify.notify(msg)     
+            msg = "%s\nคำสั่ง : เพิ่มสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา : %s"%(userData[1],name,sku,catg,qty,prc)
+            GetUserToken.notify(msg)    
 
         def updateProduct(sku,name,catg,qty,prc):
             values = self.treeview.item(self.treeview.focus(),'values')
@@ -360,8 +420,8 @@ class Home:
             qtyEntry.delete(0,END)
             prcEntry.delete(0,END)
             retrieve_data()
-            msg = "ผู้ใช้ : %s\nคำสั่ง : อัพเดทสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา    :%s"%(userData[1],name,sku,catg,qty,prc)
-            LineNotify.notify(msg)   
+            msg = "%s\nคำสั่ง : อัพเดทสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา : %s"%(userData[1],name,sku,catg,qty,prc)
+            GetUserToken.notify(msg)
 
         # global delProduct
         def delProduct():
@@ -387,8 +447,8 @@ class Home:
                 qtyEntry.delete(0,END)
                 prcEntry.delete(0,END)
                 retrieve_data()
-                msg = "ผู้ใช้ : %s\nคำสั่ง : ลบสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา :%s"%(userData[1],values[3],values[2],values[4],values[5],values[6])
-                LineNotify.notify(msg)  
+                msg = "%s\nคำสั่ง : ลบสินค้า\nชื่อสินค้า : %s\nรหัส SKU : %s\nหมวดหมู่ : %s\nจำนวน : %s\nราคา : %s"%(userData[1],values[3],values[2],values[4],values[5],values[6])
+                GetUserToken.notify(msg)
 
         def clearAll():
             skuEntry.delete(0,END)
@@ -399,5 +459,6 @@ class Home:
 
         self.treeview.bind("<Double-1>",treeViewClick)
 
-      
+
+
 

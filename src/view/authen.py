@@ -37,6 +37,7 @@ class MainAuthen(tk.Frame):
         self.btn1.grid(row=0,column=1,pady=(50,0))
         self.btn2 = tk.Button(self.root,text="Register",fg="orange",bg="#333333",font = "vandara 16 bold",relief=FLAT,width=20,height=2,command=lambda:[self.root.destroy(),self.registerScreen(tk.Tk())])
         self.btn2.grid(row=0,column=1,pady=(200,0))
+        self.root.iconphoto(False, tk.PhotoImage(file="./assets/logo.png"))
         self.root.mainloop()
 
     #Login form user login into Program which if user don't have account , user can click btn to register page

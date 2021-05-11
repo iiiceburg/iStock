@@ -4,3 +4,4 @@ from view.authen import *
 
 if __name__ == '__main__':
     MainAuthen()
+ 
