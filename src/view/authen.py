@@ -87,7 +87,7 @@ class MainAuthen(tk.Frame):
             self.reg_entry = tk.Entry(reg_screen,width=20, textvariable =self.reg_val_list[i],bg="lightgrey",fg="black",font="vandara 16 bold",relief='flat',justify=CENTER)
             self.reg_entry.grid(row=0,column=1,pady=(((i*70)+65),0),ipady=10,sticky=N)
             reg_data.append(self.reg_entry)
-        self.reg_btn1 = tk.Button(reg_screen,text="Register",fg="black",bg="orange",font = "vandara 12 bold",relief=FLAT,width=14,height=2,command=lambda:InsertData.result(reg_data))
+        self.reg_btn1 = tk.Button(reg_screen,text="Register",fg="black",bg="orange",font = "vandara 12 bold",relief=FLAT,width=14,height=2,command=lambda:InsertData.result(self,reg_data))
         self.reg_btn1.grid(row=0,column=1,pady=(480,0))
         self.to_login = tk.Button(reg_screen,text="Already have an account? Login",fg="black",bg="white",font = "vandara 10 bold",command=lambda:[self.reg_screen.destroy(),self.loginScreen(tk.Tk())],relief=FLAT,height=2)
         self.to_login.grid(row=1,column=1)
@@ -95,7 +95,7 @@ class MainAuthen(tk.Frame):
 #This class will run when self.reg_btn1 has been clicked!
 #Insert data from user input register form into database
 class InsertData:
-    def result(data):
+    def result(self,data):
         for i,items in enumerate(data):
             if items.get() == "":
                 if i == 0 and items.get() == "":
@@ -132,13 +132,13 @@ class InsertData:
                 newuser = "SELECT * FROM users WHERE username = ?"
                 curs.execute(newuser,[data[0].get()])
                 user = curs.fetchone()
-
                 default_ctg = "INSERT INTO products_category(user_id,category) VALUES(?,?)"
                 curs.execute(default_ctg,[user[0],"Uncategory"])
-                conn.commit()
-                              
-                conn.close()               
+                conn.commit()                       
+                conn.close()              
                 messagebox.showinfo("Success","Register Successfully,Thank you!")
+                self.reg_screen.destroy()
+                self.loginScreen(tk.Tk())
             except Error :
                 messagebox.showwarning("Admin:","Username already exists!\nPlease try again")
 

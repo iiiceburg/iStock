@@ -1,4 +1,5 @@
 import os, sys
+from tkinter.messagebox import showwarning
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from tkinter import *
 from tkinter import ttk
@@ -29,7 +30,7 @@ class GetUserToken:
         tokenEntry.grid(row=0,columnspan=3,sticky=S)
 
         tk.Button(popup,text="Connect",fg="white",font="Kanit 14",bg="#07BF3F",relief=FLAT,command=lambda:checkStatus(tokenEntry.get(1.0, "end-1c"))).grid(row=1,columnspan=3,sticky=N,pady=(15,0))
-        tk.Button(popup,text="How to connect line notify?",fg="#333333",font="Kanit 12 bold",bg="white",relief=FLAT,command=ContactUs.callurl).grid(row=1,columnspan=3,pady=(40,0))
+        tk.Button(popup,text="How to connect line notify?",fg="#333333",font="Kanit 12 bold",bg="white",relief=FLAT,command=lambda:webbrowser.open("https://youtu.be/5S1KzJivbcU")).grid(row=1,columnspan=3,pady=(40,0))
 
        # tk.Button(popup, text="Connect",fg="white",font="Kanit 14",bg="#07BF3F",relief=FLAT,command=lambda:notify(tokenEntry.get(1.0, "end-1c"))).grid(row=1,columnspan=3,sticky=N,pady=(15,0))
 
@@ -66,7 +67,6 @@ class GetUserToken:
         else:
             LineNotify.notify(msg,user_token[1])
         # print(user_token[1])
-
 class ContactUs:
     def callurl():
         webbrowser.open("https://lin.ee/AgxEZ6p")
@@ -166,9 +166,6 @@ class Home:
         conn.close()
         for ctg in ctgs:
             ctg_dict[ctg[1]] = ctg[2]
-            # ctg_list.append("%s %s"%(ctg[1],ctg[2]))
-            # ctg_id.append(ctg[1])
-            # ctg_name.append(ctg[2])
         return ctg_dict
 
     global search_filter
@@ -263,7 +260,7 @@ class Home:
  
     global current_ctg
     def current_ctg(event):
-        global get_id
+        global get_id,currentCtg
         current = catgDropdown.current()
         catgEntry.delete(0,END)
         currentCtg = [x for x in query_ctg().values()][current]
@@ -286,7 +283,7 @@ class Home:
         catgEntry.place(x=200,y=70)
 
         tk.Button(catgFrm,text="Add Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT,command=lambda:add_ctg(catgEntry.get())).place(x=10,y=120)
-        tk.Button(catgFrm,text="Update Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT,command=lambda:update_ctg(catgEntry.get())).place(x=170,y=120)
+        tk.Button(catgFrm,text="Update Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT,command=lambda:update_ctg(currentCtg,catgEntry.get())).place(x=170,y=120)
         tk.Button(catgFrm,text="Delete Category",font="kanit 12 bold",bg="orange",fg="black",relief=FLAT,command=lambda:delete_ctg(catgEntry.get())).place(x=350,y=120)
         catgDropdown.bind("<<ComboboxSelected>>",current_ctg)
 
@@ -308,11 +305,15 @@ class Home:
                 messagebox.showinfo("iStock","Category added successfully")
                 catgEntry.delete(0,END)   
                 catgDropdown.set("")
+
                 catgDropdown['values'] = [x for x in query_ctg().values()]
                 category['values'] = [x for x in query_ctg().values()]
                 ctg_search['values'] = [x for x in query_ctg().values()]
 
-        def update_ctg(name):
+        def update_ctg(old_ctg,name):
+            if not old_ctg:
+                messagebox.showwarning("Admin:","Please select catagory in dropdown\nIf you need to update category name")
+                return
             if not name:
                 messagebox.showwarning("Admin:","Please enter category name")
                 return
@@ -325,11 +326,13 @@ class Home:
                 conn = connect_sqLite()
                 curs = conn.cursor()
                 curs.execute("UPDATE products_category SET category = ? WHERE category_id = ?",[name,get_id[0]])
+                curs.execute("UPDATE products SET category = ? WHERE user_id = ? AND category = ?",[name,userData[0],old_ctg])
                 conn.commit()
                 conn.close()
                 messagebox.showinfo("iStock","Category updated successfully") 
                 catgEntry.delete(0,END)   
                 catgDropdown.set("")
+                retrieve_data()
                 catgDropdown['values'] = [x for x in query_ctg().values()]
                 category['values'] = [x for x in query_ctg().values()]
                 ctg_search['values'] = [x for x in query_ctg().values()]
